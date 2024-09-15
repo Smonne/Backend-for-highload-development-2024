@@ -12,6 +12,24 @@
     <p>{{ post.content }}</p>
     <p><strong>Author:</strong> {{ post.author }}</p>
     <p><strong>Published on:</strong> {{ post.created_at }}</p>
+
+    <h2>Comments</h2>
+    <ul>
+        {% for comment in comments %}
+        <li>
+            <p><strong>{{ comment.author.username }}:</strong> {{ comment.text }}</p>
+            <p><em>Posted on {{ comment.created_at }}</em></p>
+        </li>
+        {% empty %}
+        <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Add a Comment</h3>
+    <form method="post">
+        {% csrf_token %} {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
 </body>
 
 </html>

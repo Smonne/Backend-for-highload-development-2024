@@ -4,18 +4,40 @@ from .models import Post
 from django.shortcuts import get_object_or_404
 from .forms import PostForm
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from .forms import CommentForm
 
 
 def blog_home(request):
     return HttpResponse("Hello, Blog!")
 
 def post_list(request):
-    posts = Post.objects.all()
-    return render(request, 'blog/post_list.html', {'posts': posts})
+    post_list = Post.objects.all()
+    paginator = Paginator(post_list, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'blog/post_list.html', {'page_obj': page_obj})
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    return render(request, 'blog/post_detail.html', {'post': post})
+    comments = post.comments.all()
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('post_detail', post_id=post.id)
+    else:
+        form = CommentForm()
+
+    return render(request, 'blog/post_detail.html', {
+        'post': post,
+        'form': form,
+        'comments': comments,
+    })
 
 @login_required
 def create_post(request):

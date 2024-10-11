@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'blog_app/styles.css' %}">
+</head>
+
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>By {{ post.author.username }} on {{ post.created_date }}</p>
+    <p>{{ post.content }}</p>
+
+    <h2>Comments</h2>
+
+    {% load cache %} {% cache 300 recent_comments %} {% for comment in recent_comments %}
+    <div>
+        <p>{{ comment.author.username }} said on {{ comment.created_date }}:</p>
+        <p>{{ comment.content }}</p>
+    </div>
+    {% empty %}
+    <p>No comments yet.</p>
+    {% endfor %} {% endcache %}
+
+    <a href="{% url 'post_list' %}">Back to Posts</a>
+</body>
+
+</html>
